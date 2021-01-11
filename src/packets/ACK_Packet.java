@@ -124,7 +124,7 @@ public class ACK_Packet {
 		socket.send(ack);
 
 
-		System.out.println("----> " + this.toString());
+
 	}
 
 	public String toString() {

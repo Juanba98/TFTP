@@ -13,9 +13,10 @@ public class Cmd_input {
     private static String mode ;
     private static String op	;
     private static String filename ;
-    private static boolean verbose ;
+    private static boolean verbose = false;
     private static boolean quit ;
     private static int nRequest;
+    private static boolean save = false;
     public Cmd_input (int nRequest) {
          IP_Serv = "";
          mode = "";
@@ -73,7 +74,7 @@ public class Cmd_input {
                         break;
 
                     case "verbose":
-                        verbose = true;
+                        verbose = !verbose;
 
                         break;
 
@@ -83,6 +84,13 @@ public class Cmd_input {
 
 
                         break;
+
+
+                    case "save":
+                        save = !save;
+
+                        break;
+
 
                     default:
                         System.out.println("Error");
@@ -155,7 +163,7 @@ public class Cmd_input {
                         break;
 
                     case "verbose":
-                        verbose = true;
+                        verbose = !verbose;
 
                         break;
 
@@ -163,6 +171,11 @@ public class Cmd_input {
                     case "quit":
                         quit = true;
 
+
+                        break;
+
+                    case "save":
+                        save = !save;
 
                         break;
 
@@ -198,13 +211,15 @@ public class Cmd_input {
         return filename;
     }
 
-    public static boolean isVerbose() {
+    public static boolean getVerbose() {
         return verbose;
     }
 
-    public static boolean isQuit() {
+    public static boolean getQuit() {
         return quit;
     }
 
-
+    public static boolean getSave() {
+        return save;
+    }
 }

@@ -69,6 +69,7 @@ public class ReceiveData {
 					
 					//Enviamos el ACK
 					ack.sendACK(ds,inDP.getAddress(),inDP.getPort());
+					if(verbose)System.out.println("----> " + ack.toString());
 					ds.setSoTimeout(1500);
 					nAck++;
 
@@ -89,7 +90,7 @@ public class ReceiveData {
 
 						}else{
 							//Mostramos el contenido del fichero por pantalla
-							System.out.println("msg");
+							System.out.println(msg);
 						}
 
 					}

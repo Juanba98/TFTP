@@ -44,9 +44,9 @@ private static DatagramSocket socket;
 //Datagrama a enviar
 private static DatagramPacket toSend;
 
-private static boolean verbose =true;
+private static boolean verbose;
 
-private static boolean saveFile =true;
+private static boolean saveFile;
 
 
 public static void main(String[] args) {
@@ -112,7 +112,7 @@ public static void main(String[] args) {
 			//Leemos por pantalla
 			Cmd_input input =  new Cmd_input(nRequest);
 
-			quit = input.isQuit();
+			quit = input.getQuit();
 
 			//Si el usuario no quiere terminar
 			if(!quit){
@@ -125,10 +125,16 @@ public static void main(String[] args) {
 					serverAddress = InetAddress.getByName(input.getIP_Serv());
 				}
 
+				verbose = input.getVerbose();
 				//Lo pasamos a byte[]
 				res.assemblePacket();
 
-				System.out.println("------------------------------------------------------> " + res.toString());
+				saveFile = input.getSave();
+
+				if(verbose){
+					System.out.println("------------------------------------------------------> " + res.toString());
+
+				}
 			}
 
 
@@ -152,7 +158,7 @@ public static void main(String[] args) {
 		//Obtenemos el
 		int port = ack0.getPort();
 
-		new SendData(socket, serverAddress, port,DIR+request.getFileName(), errors, verbose);
+		new SendData(socket, serverAddress, port,DIR+request.getFileName(), errors, verbose );
 
 
 
@@ -176,7 +182,7 @@ public static void main(String[] args) {
 		try {
 			socket.receive(ack);
 			ACK_Packet ackP = new ACK_Packet(ack.getData());
-			System.out.println("                                  <----  " + ackP.toString());
+			if(verbose) System.out.println("                                  <----  " + ackP.toString());
 			return ack;
 
 		} catch (IOException e) {
