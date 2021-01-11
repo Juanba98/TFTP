@@ -4,6 +4,7 @@ import packets.ACK_Packet;
 import packets.Data_Packet;
 import packets.Request_Packet;
 import processes.ReceiveData;
+import processes.SendData;
 
 import java.io.*;
 import java.net.*;
@@ -29,7 +30,7 @@ private static final int servPort = 1234;
 
 //Para la simulacion de errores
 private static final boolean errors=false;
-private static Random prob = new Random();
+
 
 private static boolean quit;
 
@@ -42,6 +43,10 @@ private static InetAddress serverAddress;
 private static DatagramSocket socket;
 //Datagrama a enviar
 private static DatagramPacket toSend;
+
+private static boolean verbose =true;
+
+private static boolean saveFile =true;
 
 
 public static void main(String[] args) {
@@ -147,82 +152,16 @@ public static void main(String[] args) {
 		//Obtenemos el
 		int port = ack0.getPort();
 
-		try {
-			
-			//Abrimos el archivo a enviar
-			File file = new File(DIR+request.getFileName());
-			
-			//Para leer el archivo
-			FileInputStream in = new FileInputStream(file);
+		new SendData(socket, serverAddress, port,DIR+request.getFileName(), errors, verbose);
 
-			//Paquete de datos
-			Data_Packet data;
-			byte [] buffer ;
-			short blockN = 1;
-			
-			//boleeano para la finalizacion del proceso
-			boolean done = false;
-			
-			while(!done) {
-				
-				//Numero de intentos
-				int tries = -1;
-				
-				buffer = new byte[512];
-				int length = 0;
-				//Longitud de los datos
-				length = in.read(buffer);
-				
-				//Creamos el pquete de datos
-				data = new Data_Packet(buffer, blockN, length);
-				//Datagrama a enviar
-				toSend = new DatagramPacket(data.getBuffer(), data.getBuffer().length, serverAddress , port);
-				ACK_Packet ack_packet;
 
-				do{
-					tries++;
-					if(errors){
-
-						if( prob.nextInt(20)!=0 ) {
-							//Lo enviamos
-							socket.send(toSend);
-						}
-					}else{
-						socket.send(toSend);
-					}
-					socket.setSoTimeout(300);
-
-					if(tries>0){
-						System.out.println("RESEND----> " + data.toString());
-					}else{
-						System.out.println("----> " + data.toString());
-					}
-
-					ack_packet = new ACK_Packet(blockN);
-
-				}while(ack_packet.receiveACK(socket,serverAddress,port)==null && tries <= 3);
-				socket.setSoTimeout(0);
-				blockN++;
-
-				if (length < 512) done = true;
-				if(tries > 3){
-					System.out.println("Error max tries reached");
-					done = true;
-				}
-		}
-
-		} catch (FileNotFoundException e) {
-			System.out.println("File not found");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 
 	}
 
 	private static void RRQ(DatagramSocket socket,Request_Packet request) throws IOException {
 
 	
-		new ReceiveData(socket, DIR+request.getFileName());
+		new ReceiveData(socket,serverAddress,-1,DIR+request.getFileName(),verbose,saveFile);
 	}
 
 

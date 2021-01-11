@@ -14,8 +14,7 @@ public class ServerThread extends Thread {
 	public static final short OPACK		= 04;
 	public static final short OPERROR 	= 05;
 	
-	//Ruta de los archivos
-	public static final String DIR = ".\\lib\\server\\";
+
 	
 
 	//Ip del cliente
@@ -32,13 +31,18 @@ public class ServerThread extends Thread {
 	
 	//Socket 
 	private DatagramSocket ds;
-	
-	//Datagrama a enviar 
-	private DatagramPacket toSend;
 
+	//Ruta del archivo
+	public static final String DIR = ".\\lib\\server\\";
+	private String PATH;
+
+
+	//Verbose
+	private final boolean verbose = true;
 	
 	public ServerThread (DatagramPacket d) throws IOException {
-		
+
+
 		//Obtenemos el paquete del cliente
 		this.request = new Request_Packet(d.getData());
 		
@@ -47,7 +51,9 @@ public class ServerThread extends Thread {
 		
 		//Obtenemos el puerto del ciente
 		this.clPort = d.getPort();
-		
+
+		this.PATH = DIR+request.getFileName();
+
 		//Creamos un nuevo socket para la hebra
 		ds =  new  DatagramSocket(); 
 	}
@@ -80,78 +86,12 @@ public class ServerThread extends Thread {
 		ACK_Packet ack0 = new ACK_Packet((short)0);
 		ack0.sendACK(ds,clAddress,clPort);
 		
-		new ReceiveData(ds, DIR+request.getFileName());
+		new ReceiveData(ds,clAddress,clPort,DIR+request.getFileName(),true,true);
 	}
 
 	private void RRQ() {
-		try {
-			
-			
-			//Abrimos el archivo pedido por el cliente
-			File file = new File(DIR+request.getFileName());
-			
-			//Para leer el archivo
-			FileInputStream in = new FileInputStream(file);
 
-			//Paquete de datos
-			Data_Packet data;
-			byte [] buffer ;
-			short blockN = 1;
-
-			//boleeano para la finalizacion del proceso
-			boolean done = false;
-			while(!done) {
-				
-				//Numero de intentos
-				int tries = 0;
-				
-				
-				int length = 0;
-				buffer = new byte[ECHOMAX-4];
-				//Longitud de los datos
-				length = in.read(buffer);
-				
-				//Creamos el pquete de datos
-				data = new Data_Packet(buffer, blockN, length);
-				
-				//Datagrama a enviar
-				toSend = new DatagramPacket(data.getBuffer(), data.getBuffer().length,clAddress , clPort);
-				ACK_Packet ack_packet;
-
-				do{
-					//Lo enviamos
-					ds.send(toSend);
-					//Establecemos el Time Out
-					ds.setSoTimeout(3000);
-					
-					if(tries>0){
-						System.out.println("RESEND----> " + data.toString());
-					}else{
-						System.out.println("----> " + data.toString());
-					}
-					
-					//ACK que esperamos
-					ack_packet = new ACK_Packet(blockN);
-					tries++;
-				}while(ack_packet.receiveACK(ds,clAddress,clPort)==null && tries < 3);
-				ds.setSoTimeout(0);
-				blockN++;
-
-				//Hemos enviado los ultimos datos
-				if (length < 512) {
-					
-					done = true;
-					in.close();
-				}
-
-			}
-
-		} catch (FileNotFoundException e) {
-			System.out.println("File not found");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
+		new SendData(ds,clAddress,clPort,DIR+request.getFileName(),false,true);
 	}
 
 

@@ -82,28 +82,32 @@ public class ACK_Packet {
 	public ACK_Packet receiveACK(DatagramSocket socket, InetAddress address, int port){
 
 		try{
-			DatagramPacket ack = //ACK a recibir
+			//ACK a recibir
+			DatagramPacket ack =
 					new DatagramPacket(new byte[4], 4);
 
+			//Recibimos el datagrama
 			socket.receive(ack);
 
-			if(!ack.getAddress().equals(address) || ack.getPort()!= port){ //Comprobamos que el paquete recibido es de nuestro destinatario
+			//Comprobamos que el ACK se ha recibido del emisor adecuado
+			if(!ack.getAddress().equals(address) || ack.getPort()!= port){
 				throw new IOException("Packet received from other entity");
 			}
+			//Tratamos el paquete recibido
+			ACK_Packet ackP = new ACK_Packet(ack.getData());
 
-			ACK_Packet ackP = new ACK_Packet(ack.getData());//Tratamos el paquete recibido
-
-			if(this.blockNumber!=ackP.getBlockNumber()){ //Comprobamos que sea el ACK esperado
+			//Comprobamos que sea el ACK esperado
+			if(this.blockNumber!=ackP.getBlockNumber()){
 				throw new IOException("Wrong ACK number recibed");
 			}
-			System.out.println("                                  <----  " + ackP.toString());
+
 
 			return  ackP;
 
 		}catch (SocketTimeoutException e){
 			return null;
 		} catch (IOException e) {
-			System.out.println("EIII");
+
 			e.printStackTrace();
 			return null;
 		}
