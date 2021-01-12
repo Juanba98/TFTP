@@ -1,5 +1,10 @@
 package processes;
-
+/*
+ * Garcia Pelaez Juan Bautista
+ * Ing. Informatica 3ºB
+ * Desarrollo de Servicios Telemáticos
+ *
+ */
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -8,29 +13,24 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-
-
 import exception.ErrorReceivedException;
 import packets.ACK_Packet;
 import packets.Data_Packet;
 import packets.Error_Packet;
-import packets.Request_Packet;
+
 
 
 public class ReceiveData {
-	
-	
+
 	//Tamaño maximo de los datagramas
 	private static final int ECHOMAX = 516; 
-
-	
-	
 
 	public ReceiveData(DatagramSocket ds, InetAddress transAddress, int transPort,File file, boolean verbose, boolean saveFile) throws ErrorReceivedException {
 
 		
 		short nAck = 1;
 		try {
+
 			//booleano para la finalizacion del proceso
 			boolean done= false;
 			
@@ -65,6 +65,7 @@ public class ReceiveData {
 					}
 
 				}
+
 				//Procesamos el paquete para obtener los datos
 				Data_Packet data = new Data_Packet(inDP.getData(),inDP.getLength()-4);
 
@@ -102,6 +103,7 @@ public class ReceiveData {
 							writer.close();
 
 						}else{
+
 							//Mostramos el contenido del fichero por pantalla
 							System.out.println(msg);
 						}
@@ -110,7 +112,9 @@ public class ReceiveData {
 
 				}else{
 					done=true;
-					throw new IOException("File transfer fail");
+					Error_Packet error_packet =  new Error_Packet((short)0,"Block number not escpected",ds,transAddress,transPort);
+					throw new ErrorReceivedException(error_packet);
+
 				}
 			}
 

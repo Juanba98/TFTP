@@ -1,6 +1,10 @@
 package packets;
-
 /*
+ * Garcia Pelaez Juan Bautista
+ * Ing. Informatica 3ºB
+ * Desarrollo de Servicios Telemáticos
+ *
+
   		  2 bytes    2 bytes       n bytes
           ---------------------------------
    DATA  | 03    |   Block #  |    Data    |
@@ -13,13 +17,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Data_Packet {
-	private static final int MAX_LENGTH = 516;
-	
+
 	private final short opCode = 03;
 	private short blockNumber;
 	private byte[] data;
@@ -39,41 +40,27 @@ public class Data_Packet {
 	public Data_Packet (byte[] buffer, int data_length) throws IOException {
 		this.buffer = buffer;
 		this.data_length = data_length;
-		//this.data	= new byte[MAX_LENGTH];
-		//this.data_length = MAX_LENGTH;
 		disassemble();
 	}
 
-	public short getOpCode() {
-		return opCode;
-	}
-	
+
 	public int getBlockNumber() {
 		return blockNumber;
 	}
-
 	public byte[] getData() {
 		return data;
 	}
-
 	public byte[] getBuffer() {
 		return buffer;
 	}
 	public int getData_length(){return data_length;}
-	public void setBlockNumber(short blockNumber) {
-		this.blockNumber = blockNumber;
-	}
 
-	
-
-	public void setData(byte[] data) {
-		this.data = data;
-	}
 
 	public void assemblePacket() throws IOException {
 
-		//ArrayList<Byte> resAux =  new ArrayList<Byte>();
+
 		ByteArrayOutputStream resAux = new ByteArrayOutputStream();
+
 		//Opcode, 2 bytes
 		resAux.write((byte)((opCode>>8)&0xFF));
 		resAux.write((byte)(opCode&0xFF));
@@ -87,14 +74,11 @@ public class Data_Packet {
 			resAux.write(data[i]);
 		}
 
-		/*for (byte b : data) {
-			//System.out.println(b);
-			resAux.add(b);
-		}*/
+
 		resAux.close();
-		//System.out.println("Estamos");
+
 		buffer = resAux.toByteArray();
-		//System.out.println("Salimos");
+
 	}
 	
 	
@@ -106,11 +90,6 @@ public class Data_Packet {
 		blockNumber = in.readShort();
 
 		data	= readData(in);
-		//System.out.println("VAAMOS");
-		//System.out.println("XXXX-----" + new String(data));
-		//System.out.println(buffer.length);
-		//System.out.println(data_length);
-		//System.out.println("---------------------------------------------------------------");
 		
 	}
 	
@@ -120,14 +99,12 @@ public class Data_Packet {
 		
 
 		ByteArrayOutputStream resAux = new ByteArrayOutputStream();
-		//System.out.println("VAAMOS");
+
 
 		for(int i = 0; i<data_length; i++){
-			//System.out.println("VAAMOS " + i);
+
 			resAux.write(in.readByte());
 		}
-		//System.out.println("VAAMOS");
-		//System.out.println();
 
 		resAux.close();
 		return resAux.toByteArray();

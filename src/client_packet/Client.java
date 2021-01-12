@@ -1,5 +1,10 @@
 package client_packet;
-
+/*
+ * Garcia Pelaez Juan Bautista
+ * Ing. Informatica 3ºB
+ * Desarrollo de Servicios Telemáticos
+ *
+ */
 import exception.ErrorReceivedException;
 import packets.ACK_Packet;
 import packets.Data_Packet;
@@ -16,10 +21,6 @@ public class Client {
 
 //Codigos de operacion
 public static final short OPRRQ		= 01;
-public static final short OPWRQ		= 02;
-public static final short OPDATA	= 03;
-public static final short OPACK		= 04;
-public static final short OPERROR 	= 05;
 
 //Longitud maxima del datagrama
 public static final int DATAGRAM_LENGTH = 516;
@@ -143,14 +144,12 @@ public static void main(String[] args) throws ErrorReceivedException {
 			return res;
 
 		} catch (UnknownHostException e) {
-			e.printStackTrace();
+			System.out.println("Error with the IP server. Try again");
+			return request(nRequest);
 		}
 
-		return null;
+
 	}
-
-
-
 
 	private static void WRQ(DatagramSocket socket, Request_Packet request) throws IOException {
 		//Archivo a enviar
@@ -171,7 +170,7 @@ public static void main(String[] args) throws ErrorReceivedException {
 			}
 			new SendData(socket, serverAddress, port, file, errors, verbose);
 		}catch (ErrorReceivedException e){
-			e.printStackTrace();
+
 			e.printErrorMsg();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -193,9 +192,6 @@ public static void main(String[] args) throws ErrorReceivedException {
             e.printErrorMsg();
         }
     }
-
-
-
 
 	private static DatagramPacket receiveACK_aux(DatagramSocket socket){
 

@@ -2,6 +2,11 @@ package packets;
 
 
 /*
+ * Garcia Pelaez Juan Bautista
+ * Ing. Informatica 3ºB
+ * Desarrollo de Servicios Telemáticos
+ *
+
 	       2 bytes  2 bytes        string    1 byte
           ----------------------------------------
    ERROR | 05    |  ErrorCode |   ErrMsg   |   0  |
@@ -9,11 +14,7 @@ package packets;
 */
 
 
-
-
-
 import exception.ErrorReceivedException;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -63,37 +64,16 @@ public class Error_Packet {
 	}
 
 	//Gettes and setters
-	public short getOpCode() {
-		return opCode;
-	}
-
-	public short getErrorCode() {
-		return errorCode;
-	}
-
-	public void setErrorCode(short errorCode) {
-		this.errorCode = errorCode;
-	}
 
 	public byte[] getBuffer() {
 		return buffer;
-	}
-
-	public void setBuffer(byte[] buffer) {
-		this.buffer = buffer;
-	}
-
-	public String[] getErrorArra() {
-		return errorArra;
 	}
 
 	public String getErrorMsg() {
 		return errorMsg;
 	}
 
-	public void setErrorMsg(String errorMsg) {
-		this.errorMsg = errorMsg;
-	}
+
 
 
 
@@ -112,15 +92,12 @@ public class Error_Packet {
 		resAux.write((byte)(errorCode&0xFF));
 
 		//Error Msg
-
         resAux.write(errorMsg.getBytes());
 
-
+        //Byte 0
         resAux.write((byte)0);
 
-
 		buffer = resAux.toByteArray();
-
 
 	}
 
@@ -154,7 +131,6 @@ public class Error_Packet {
 		while(in.available()!=0) {
 			resAux.write(in.readByte());
 		}
-
 
 		return resAux.toByteArray();
 	}

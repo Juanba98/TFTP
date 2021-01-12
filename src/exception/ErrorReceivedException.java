@@ -1,5 +1,10 @@
 package exception;
-
+/*
+ * Garcia Pelaez Juan Bautista
+ * Ing. Informatica 3ºB
+ * Desarrollo de Servicios Telemáticos
+ *
+ */
 import packets.Error_Packet;
 
 public class ErrorReceivedException extends Exception{

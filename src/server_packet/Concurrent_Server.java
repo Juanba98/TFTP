@@ -1,4 +1,10 @@
 package server_packet;
+/*
+* Garcia Pelaez Juan Bautista
+* Ing. Informatica 3ºB
+* Desarrollo de Servicios Telemáticos
+*
+*/
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -17,18 +23,7 @@ public class Concurrent_Server {
 		DatagramSocket ds = null;
 		
 		try {
-			
-			
-			//BufferedReader stdin =  new BufferedReader(new InputStreamReader(System.in));
-			
-			
-			/*do {
-				System.out.println("Introduce el puerto en el que escuchar:");
-				tftpPort = Integer.parseInt(stdin.readLine());
-				
-			}while(tftpPort < 0);
-			*/
-			
+
 			//Creamos el socket en el puerto tftpPort
 			ds = new DatagramSocket(port);
 			
@@ -36,10 +31,7 @@ public class Concurrent_Server {
 			DatagramPacket datagram = new DatagramPacket(buffer,
 			buffer.length);
 			System.out.println("------ Server Started ------");
-			
-			
-			
-			
+
 			while (true) {
 				//Limpiamos el buffer
 				datagram.setLength(DATAP_LENGTH);
@@ -47,23 +39,19 @@ public class Concurrent_Server {
 				//Recibimos el paquete
 				ds.receive(datagram);
 				
-				System.out.println("***Nueva peticion de servicio***");
+				System.out.println("***New Client***");
 
 				//Iniciamos una hebra 
 				(new ServerThread(datagram)).start();
 				
 			}
+
 		} catch (IOException e) {
 			System.err.println("Error E/S en: " + e.getMessage());
+
 		}finally {
 				if (ds != null)
 				ds.close();
 			}
 		}
-
-	
-		
-		
-		
-		
 }

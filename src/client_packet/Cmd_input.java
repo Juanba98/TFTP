@@ -1,12 +1,14 @@
 package client_packet;
-
+/*
+ * Garcia Pelaez Juan Bautista
+ * Ing. Informatica 3ºB
+ * Desarrollo de Servicios Telemáticos
+ *
+ */
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
-
-
-
 
 public class Cmd_input {
     private static String IP_Serv ;
@@ -93,14 +95,11 @@ public class Cmd_input {
 
 
                     default:
-                        System.out.println("Error");
+                        System.out.println("Error, try again");
 
 
                 }
             }
-
-
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -180,7 +179,7 @@ public class Cmd_input {
                         break;
 
                     default:
-                        System.out.println("Error");
+                        System.out.println("Error, try again");
 
 
                 }

@@ -6,40 +6,42 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import packets.*;
+/*
+ * Garcia Pelaez Juan Bautista
+ * Ing. Informatica 3ºB
+ * Desarrollo de Servicios Telemáticos
+ *
+ */
 public class ServerThread extends Thread {
 	
 	//Codigos de operacion
-	public static final short OPRRQ		= 01;
-	public static final short OPWRQ		= 02;
-	public static final short OPDATA	= 03;
-	public static final short OPACK		= 04;
-	public static final short OPERROR 	= 05;
-	
-
-	
+    private static final short OPRRQ		= 01;
 
 	//Ip del cliente
 	private InetAddress clAddress;
 	
 	//Puerto del cliente
 	private int clPort;
-	
-	//Tamaño maximo de los datagramas
-	private static final int ECHOMAX = 516; 
-	
+
 	//Paquete de la peticion
 	private Request_Packet request;
 	
-	//Socket 
+	//Socket
 	private DatagramSocket ds;
 
 	//Ruta del archivo
-	public static final String DIR = ".\\lib\\server\\";
+	private static final String DIR = ".\\lib\\server\\";
 	private String PATH;
-
 
 	//Verbose
 	private final boolean verbose = true;
+
+	//SaveFile
+    private final boolean saveFile = true;
+
+    //Errors
+    private final boolean errors = false;
+
 	
 	public ServerThread (DatagramPacket d) throws IOException {
 
@@ -62,8 +64,8 @@ public class ServerThread extends Thread {
 		
 		
 	public void run() {
-		try {
 
+	    try {
 
 			System.out.println("Cliente con ip "+ clAddress +" y puerto "+ clPort);
 			System.out.println("\n                                   <---- " + request.toString());
@@ -85,24 +87,19 @@ public class ServerThread extends Thread {
 		File file = new File(PATH);
 		try {
 
-
 			//Si ya existe  Error 6
 			if (file.exists()) {
 
 				Error_Packet error_packet = new Error_Packet((short) 6, ds, clAddress, clPort);
 				throw new ErrorReceivedException(error_packet);
 			}
-			//Si no es un archivo Error 4
-			if (!file.isFile()) {
-				Error_Packet error_packet = new Error_Packet((short) 4, ds, clAddress, clPort);
 
-				throw new ErrorReceivedException(error_packet);
-			}
 
 			//Creamos el ACK0 y lo enviamos
 			ACK_Packet ack0 = new ACK_Packet((short) 0);
 			ack0.sendACK(ds, clAddress, clPort);
-			new ReceiveData(ds,clAddress,clPort,file,true,true);
+			new ReceiveData(ds,clAddress,clPort,file,verbose,saveFile);
+
 		}catch (ErrorReceivedException e) {
 			e.printErrorMsg();
 		}
@@ -110,7 +107,8 @@ public class ServerThread extends Thread {
 	}
 
 	private void RRQ() throws IOException, ErrorReceivedException {
-		//Archivo a enviar
+
+	    //Archivo a enviar
 		File file = new File(PATH);
 
 		//Si el archivo no existe Error 1
@@ -131,10 +129,7 @@ public class ServerThread extends Thread {
 		}
 
 
-
-
-
-		new SendData(ds,clAddress,clPort,file,false,true);
+		new SendData(ds,clAddress,clPort,file,errors,verbose);
 	}
 
 

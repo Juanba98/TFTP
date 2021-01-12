@@ -1,6 +1,12 @@
 package packets;
 
 /*
+ * Garcia Pelaez Juan Bautista
+ * Ing. Informatica 3ºB
+ * Desarrollo de Servicios Telemáticos
+ *
+
+
 		 2 bytes    2 bytes
           -------------------
    ACK   | 04    |   Block #  |
@@ -41,17 +47,14 @@ public class ACK_Packet {
 	}
 
 	
-	public short getOpCode() {
-		return opCode;
-	}
 
-	public byte[] getBuffer(){return buffer;}
 
-	public int getPacket_lenght(){return packet_lenght;}
 	public short getBlockNumber() {
 		return blockNumber;
 	}
 	public int getPortAux(){return portAux;}
+
+
 	public void assemblePacket() {
 		ByteArrayOutputStream resAux = new ByteArrayOutputStream();
 		
@@ -96,6 +99,7 @@ public class ACK_Packet {
 			}
 			//Condicion para recibir el ACK0
 			if(port != -1 && !address.equals(null)){
+
 				//Comprobamos que el ACK se ha recibido del emisor adecuado
 				if(!ack.getAddress().equals(address) || ack.getPort()!= port){
 					Error_Packet error_packet = new Error_Packet((short)5,socket,ack.getAddress(),ack.getPort());
@@ -124,7 +128,6 @@ public class ACK_Packet {
 		}catch (SocketTimeoutException e){
 			return null;
 		} catch (IOException e) {
-
 			e.printStackTrace();
 			return null;
 		}
@@ -139,8 +142,6 @@ public class ACK_Packet {
 				new DatagramPacket(this.buffer,this.buffer.length, address, port);
 
 		socket.send(ack);
-
-
 
 	}
 

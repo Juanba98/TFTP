@@ -1,5 +1,10 @@
 package processes;
-
+/*
+ * Garcia Pelaez Juan Bautista
+ * Ing. Informatica 3ºB
+ * Desarrollo de Servicios Telemáticos
+ *
+ */
 import exception.ErrorReceivedException;
 import packets.ACK_Packet;
 import packets.Data_Packet;
