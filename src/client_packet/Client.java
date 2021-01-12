@@ -1,5 +1,6 @@
 package client_packet;
 
+import exception.ErrorReceivedException;
 import packets.ACK_Packet;
 import packets.Data_Packet;
 import packets.Request_Packet;
@@ -150,7 +151,7 @@ public static void main(String[] args) {
 
 
 
-	private static void WRQ(DatagramSocket socket, Request_Packet request) {
+	private static void WRQ(DatagramSocket socket, Request_Packet request) throws IOException {
 
 		//ACK0
 		DatagramPacket ack0 = receiveACK_aux(socket);
@@ -164,11 +165,15 @@ public static void main(String[] args) {
 
 	}
 
-	private static void RRQ(DatagramSocket socket,Request_Packet request) throws IOException {
+	private static void RRQ(DatagramSocket socket,Request_Packet request){
 
-	
-		new ReceiveData(socket,serverAddress,-1,DIR+request.getFileName(),verbose,saveFile);
-	}
+
+        try {
+            new ReceiveData(socket,serverAddress,-1,DIR+request.getFileName(),verbose,saveFile);
+        } catch (ErrorReceivedException e) {
+            e.printErrorMsg();
+        }
+    }
 
 
 

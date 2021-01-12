@@ -10,6 +10,8 @@ package packets;
 
 
 
+
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -24,7 +26,9 @@ public class Error_Packet {
 	private short errorCode;
 	private String errorMsg;
 	private byte[] buffer;
-	
+
+
+
 	private final String[] errorArra = {" Not defined, see error message (if any)",
 									"File not found","Access violation","Disk full or allocation exceeded",
 									"Illegal TFTP operation","Unknown transfer ID","File already exists",
@@ -35,13 +39,15 @@ public class Error_Packet {
 		this.buffer =  buffer;
 		disassemble();
 
+
 	}
 
 
 
-	public Error_Packet(short errorCode) {
+	public Error_Packet(short errorCode) throws IOException {
 		this.errorCode = errorCode;
 		this.errorMsg  = errorArra[errorCode];
+		assemblePacket();
 
 	}
 
@@ -81,6 +87,7 @@ public class Error_Packet {
 
 
 
+
 	public void assemblePacket() throws IOException {
 
 		ByteArrayOutputStream resAux = new ByteArrayOutputStream();
@@ -94,9 +101,11 @@ public class Error_Packet {
 		resAux.write((byte)(errorCode&0xFF));
 
 		//Error Msg
-		resAux.write(errorMsg.getBytes());
 
-		resAux.write((byte)0);
+        resAux.write(errorMsg.getBytes());
+
+
+        resAux.write((byte)0);
 
 
 		buffer = resAux.toByteArray();
@@ -109,23 +118,23 @@ public class Error_Packet {
 
 
 	private void disassemble() throws IOException {
-		DataInputStream in = new DataInputStream(new ByteArrayInputStream(buffer));
+        DataInputStream in = new DataInputStream(new ByteArrayInputStream(buffer));
 
-		//Opcode
-		in.readShort();
+        //Opcode
+        if (in.readShort() == opCode) {
+            //Error code
+            errorCode = in.readShort();
 
-		//Error code
-		errorCode 	=  in.readShort();
-
-		//Error Msg
-		errorMsg	= readData(in).toString();
-
-
+            System.out.println();
+            //Error Msg
+            errorMsg = new String(readData(in));
 
 
+            in.close();
 
-	}
 
+        }
+    }
 
 	private byte[] readData (DataInputStream in) throws IOException {
 

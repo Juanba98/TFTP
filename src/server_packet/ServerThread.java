@@ -1,4 +1,5 @@
 package server_packet;
+import exception.ErrorReceivedException;
 import processes.*;
 import java.io.*;
 import java.net.DatagramPacket;
@@ -85,11 +86,15 @@ public class ServerThread extends Thread {
 		//Creamos el ACK0 y lo enviamos 
 		ACK_Packet ack0 = new ACK_Packet((short)0);
 		ack0.sendACK(ds,clAddress,clPort);
-		
-		new ReceiveData(ds,clAddress,clPort,DIR+request.getFileName(),true,true);
+
+		try {
+			new ReceiveData(ds,clAddress,clPort,DIR+request.getFileName(),true,true);
+		} catch (ErrorReceivedException e) {
+			e.printErrorMsg();
+		}
 	}
 
-	private void RRQ() {
+	private void RRQ() throws IOException {
 
 		new SendData(ds,clAddress,clPort,DIR+request.getFileName(),false,true);
 	}

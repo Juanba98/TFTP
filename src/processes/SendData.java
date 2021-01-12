@@ -2,6 +2,8 @@ package processes;
 
 import packets.ACK_Packet;
 import packets.Data_Packet;
+import packets.Error_Packet;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -19,10 +21,9 @@ public class SendData {
     //Simulacion de errores
     private static Random prob = new Random();
 
-    public SendData(DatagramSocket ds, InetAddress dstAddres, int dstPort, String PATH, boolean errors, boolean verbose){
-
+    public SendData(DatagramSocket ds, InetAddress dstAddres, int dstPort, String PATH, boolean errors, boolean verbose) throws IOException {
+        DatagramPacket toSend;
         try {
-
             //Abrimos el archivo a enviar
             File file = new File(PATH);
 
@@ -54,7 +55,7 @@ public class SendData {
                 data = new Data_Packet(buffer, blockN, length);
 
                 //Datagrama a enviar
-                DatagramPacket toSend = new DatagramPacket(data.getBuffer(), data.getBuffer().length, dstAddres, dstPort);
+                toSend = new DatagramPacket(data.getBuffer(), data.getBuffer().length, dstAddres, dstPort);
 
                 //Paquete para recibir los ACK
                 ACK_Packet ack_packet;
@@ -126,7 +127,10 @@ public class SendData {
             }
 
         } catch (FileNotFoundException e) {
-            System.out.println("File not found");
+            Error_Packet error_packet = new Error_Packet((short)1);
+            toSend = new DatagramPacket(error_packet.getBuffer(), error_packet.getBuffer().length, dstAddres, dstPort);
+            ds.send(toSend);
+            System.out.println(error_packet.getErrorMsg());
         } catch (IOException e) {
             e.printStackTrace();
         }

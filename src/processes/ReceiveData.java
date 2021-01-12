@@ -10,8 +10,10 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 
+import exception.ErrorReceivedException;
 import packets.ACK_Packet;
 import packets.Data_Packet;
+import packets.Error_Packet;
 import packets.Request_Packet;
 
 
@@ -24,7 +26,7 @@ public class ReceiveData {
 	
 	
 
-	public ReceiveData(DatagramSocket ds, InetAddress transAddress, int transPort, String PATH, boolean verbose, boolean saveFile) {
+	public ReceiveData(DatagramSocket ds, InetAddress transAddress, int transPort, String PATH, boolean verbose, boolean saveFile) throws ErrorReceivedException {
 
 		
 		short nAck = 1;
@@ -50,7 +52,15 @@ public class ReceiveData {
 					throw new IOException("Packet received from other entity");
 				}
 				ds.setSoTimeout(0);
-				
+
+				if(inDP.getLength()<ECHOMAX ){
+					Error_Packet error_packet = new Error_Packet(inDP.getData());
+					if(error_packet.getErrorMsg()!=null){
+
+						throw new ErrorReceivedException(error_packet);
+					}
+
+				}
 				//Procesamos el paquete para obtener los datos
 				Data_Packet data = new Data_Packet(inDP.getData(),inDP.getLength()-4);
 
