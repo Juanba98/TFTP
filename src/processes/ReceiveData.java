@@ -26,7 +26,7 @@ public class ReceiveData {
 	
 	
 
-	public ReceiveData(DatagramSocket ds, InetAddress transAddress, int transPort, String PATH, boolean verbose, boolean saveFile) throws ErrorReceivedException {
+	public ReceiveData(DatagramSocket ds, InetAddress transAddress, int transPort,File file, boolean verbose, boolean saveFile) throws ErrorReceivedException {
 
 		
 		short nAck = 1;
@@ -47,9 +47,13 @@ public class ReceiveData {
 				if(transPort == -1){
 					transPort = inDP.getPort();
 				}
+
 				//Comprobamos que el paquete recibido es del emisor correcto
 				if(!inDP.getAddress().equals(transAddress) || inDP.getPort()!= transPort){
-					throw new IOException("Packet received from other entity");
+					Error_Packet error_packet = new Error_Packet((short)5,ds,transAddress,transPort);
+					DatagramPacket toSend = new DatagramPacket(error_packet.getBuffer(), error_packet.getBuffer().length, transAddress, transPort);
+					ds.send(toSend);
+					throw new ErrorReceivedException(error_packet);
 				}
 				ds.setSoTimeout(0);
 
@@ -93,7 +97,6 @@ public class ReceiveData {
 						if(saveFile){
 
 							//Almacenamos el mensaje recibido
-							File file =  new File(PATH);
 							BufferedOutputStream writer = new BufferedOutputStream(new FileOutputStream(file));
 							writer.write(msg.toByteArray());
 							writer.close();

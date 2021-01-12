@@ -12,13 +12,15 @@ package packets;
 
 
 
+import exception.ErrorReceivedException;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-
-
-
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 
 public class Error_Packet {
@@ -42,12 +44,21 @@ public class Error_Packet {
 
 	}
 
+	public Error_Packet(short errorCode, String msg, DatagramSocket socket, InetAddress dstAddres, int dstPort) throws IOException {
+		this.errorCode = errorCode;
+		this.errorMsg  = msg;
+		assemblePacket();
+		DatagramPacket toSend = new DatagramPacket(this.getBuffer(), this.getBuffer().length, dstAddres, dstPort);
+		socket.send(toSend);
+	}
 
-
-	public Error_Packet(short errorCode) throws IOException {
+	public Error_Packet(short errorCode,  DatagramSocket socket,InetAddress dstAddres, int dstPort) throws IOException, ErrorReceivedException {
 		this.errorCode = errorCode;
 		this.errorMsg  = errorArra[errorCode];
 		assemblePacket();
+		DatagramPacket toSend = new DatagramPacket(this.getBuffer(), this.getBuffer().length, dstAddres, dstPort);
+		socket.send(toSend);
+		throw new ErrorReceivedException(this);
 
 	}
 

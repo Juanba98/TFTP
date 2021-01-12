@@ -3,6 +3,7 @@ package client_packet;
 import exception.ErrorReceivedException;
 import packets.ACK_Packet;
 import packets.Data_Packet;
+import packets.Error_Packet;
 import packets.Request_Packet;
 import processes.ReceiveData;
 import processes.SendData;
@@ -50,7 +51,7 @@ private static boolean verbose;
 private static boolean saveFile;
 
 
-public static void main(String[] args) {
+public static void main(String[] args) throws ErrorReceivedException {
 
 
 	try {
@@ -152,24 +153,42 @@ public static void main(String[] args) {
 
 
 	private static void WRQ(DatagramSocket socket, Request_Packet request) throws IOException {
+		//Archivo a enviar
+		File file = new File(DIR+request.getFileName());
+		try {
 
-		//ACK0
-		DatagramPacket ack0 = receiveACK_aux(socket);
 
-		//Obtenemos el
-		int port = ack0.getPort();
 
-		new SendData(socket, serverAddress, port,DIR+request.getFileName(), errors, verbose );
-
+			//ACK0
+			ACK_Packet ack0 = new ACK_Packet((short) 0);
+			ack0.receiveACK(socket, null, -1);
+			//Obtenemos el puerto de la hebra
+			int port = ack0.getPortAux();
+			//Si el archivo no existe Error 1
+			if(!file.exists()) {
+				Error_Packet error_packet = new Error_Packet((short) 1, socket,serverAddress ,port);
+				throw new ErrorReceivedException(error_packet);
+			}
+			new SendData(socket, serverAddress, port, file, errors, verbose);
+		}catch (ErrorReceivedException e){
+			e.printStackTrace();
+			e.printErrorMsg();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 
 	}
 
 	private static void RRQ(DatagramSocket socket,Request_Packet request){
+		//Archivo a recibir
+		if(saveFile){
+			File file = new File(DIR+request.getFileName());
+		}
 
 
         try {
-            new ReceiveData(socket,serverAddress,-1,DIR+request.getFileName(),verbose,saveFile);
+            new ReceiveData(socket,serverAddress,-1,null,verbose,saveFile);
         } catch (ErrorReceivedException e) {
             e.printErrorMsg();
         }

@@ -9,6 +9,8 @@ package packets;
 */
 
 
+import exception.ErrorReceivedException;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -24,7 +26,8 @@ public class ACK_Packet {
 	private short blockNumber;
 	private final int packet_lenght = 4;
 	private byte[] buffer;
-	
+	private int portAux;
+
 	public ACK_Packet(short blockNumber) {
 		this.blockNumber = blockNumber;
 		assemblePacket();
@@ -48,7 +51,7 @@ public class ACK_Packet {
 	public short getBlockNumber() {
 		return blockNumber;
 	}
-
+	public int getPortAux(){return portAux;}
 	public void assemblePacket() {
 		ByteArrayOutputStream resAux = new ByteArrayOutputStream();
 		
@@ -79,26 +82,40 @@ public class ACK_Packet {
 		}
 		
 	}
-	public ACK_Packet receiveACK(DatagramSocket socket, InetAddress address, int port){
+	public ACK_Packet receiveACK(DatagramSocket socket, InetAddress address, int port) throws ErrorReceivedException {
 
 		try{
 			//ACK a recibir
-			DatagramPacket ack =
-					new DatagramPacket(new byte[4], 4);
+			DatagramPacket ack =  new DatagramPacket(new byte[256],256);
 
 			//Recibimos el datagrama
 			socket.receive(ack);
-
-			//Comprobamos que el ACK se ha recibido del emisor adecuado
-			if(!ack.getAddress().equals(address) || ack.getPort()!= port){
-				throw new IOException("Packet received from other entity");
+			if(ack.getLength() > packet_lenght){
+				Error_Packet error_packet = new Error_Packet(ack.getData());
+				throw new ErrorReceivedException(error_packet);
 			}
+			//Condicion para recibir el ACK0
+			if(port != -1 && !address.equals(null)){
+				//Comprobamos que el ACK se ha recibido del emisor adecuado
+				if(!ack.getAddress().equals(address) || ack.getPort()!= port){
+					Error_Packet error_packet = new Error_Packet((short)5,socket,ack.getAddress(),ack.getPort());
+					DatagramPacket toSend = new DatagramPacket(error_packet.getBuffer(), error_packet.getBuffer().length, ack.getAddress(), ack.getPort());
+					socket.send(toSend);
+					throw new ErrorReceivedException(error_packet);
+				}
+			}else{
+				portAux = ack.getPort();
+			}
+
 			//Tratamos el paquete recibido
 			ACK_Packet ackP = new ACK_Packet(ack.getData());
 
 			//Comprobamos que sea el ACK esperado
 			if(this.blockNumber!=ackP.getBlockNumber()){
-				throw new IOException("Wrong ACK number recibed");
+				Error_Packet error_packet = new Error_Packet((short)1,"ACK number not expected",socket,ack.getAddress(),ack.getPort());
+				DatagramPacket toSend = new DatagramPacket(error_packet.getBuffer(), error_packet.getBuffer().length,ack.getAddress(), ack.getPort());
+				socket.send(toSend);
+				throw new ErrorReceivedException(error_packet);
 			}
 
 

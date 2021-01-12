@@ -80,23 +80,61 @@ public class ServerThread extends Thread {
 	}
 
 	
-	private void WRQ() throws IOException {
-		
-
-		//Creamos el ACK0 y lo enviamos 
-		ACK_Packet ack0 = new ACK_Packet((short)0);
-		ack0.sendACK(ds,clAddress,clPort);
-
+	private void WRQ() throws IOException{
+		//Archivo a recibir
+		File file = new File(PATH);
 		try {
-			new ReceiveData(ds,clAddress,clPort,DIR+request.getFileName(),true,true);
-		} catch (ErrorReceivedException e) {
+
+
+			//Si ya existe  Error 6
+			if (file.exists()) {
+
+				Error_Packet error_packet = new Error_Packet((short) 6, ds, clAddress, clPort);
+				throw new ErrorReceivedException(error_packet);
+			}
+			//Si no es un archivo Error 4
+			if (!file.isFile()) {
+				Error_Packet error_packet = new Error_Packet((short) 4, ds, clAddress, clPort);
+
+				throw new ErrorReceivedException(error_packet);
+			}
+
+			//Creamos el ACK0 y lo enviamos
+			ACK_Packet ack0 = new ACK_Packet((short) 0);
+			ack0.sendACK(ds, clAddress, clPort);
+			new ReceiveData(ds,clAddress,clPort,file,true,true);
+		}catch (ErrorReceivedException e) {
 			e.printErrorMsg();
 		}
+
 	}
 
-	private void RRQ() throws IOException {
+	private void RRQ() throws IOException, ErrorReceivedException {
+		//Archivo a enviar
+		File file = new File(PATH);
 
-		new SendData(ds,clAddress,clPort,DIR+request.getFileName(),false,true);
+		//Si el archivo no existe Error 1
+		if(!file.exists()){
+			Error_Packet error_packet =  new Error_Packet((short)1,ds,clAddress,clPort);
+			throw new ErrorReceivedException(error_packet);
+		}
+		//Si es un directorio Error 2
+		if (file.isDirectory()){
+			Error_Packet error_packet = new Error_Packet((short)2,ds,clAddress,clPort);
+			throw new ErrorReceivedException(error_packet);
+		}
+
+		//Si no es un archivo Error 4
+		if(!file.isFile()){
+			Error_Packet error_packet =  new Error_Packet((short)4,ds,clAddress,clPort);
+			throw new ErrorReceivedException(error_packet);
+		}
+
+
+
+
+
+		new SendData(ds,clAddress,clPort,file,false,true);
 	}
 
 

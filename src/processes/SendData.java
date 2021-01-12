@@ -1,5 +1,6 @@
 package processes;
 
+import exception.ErrorReceivedException;
 import packets.ACK_Packet;
 import packets.Data_Packet;
 import packets.Error_Packet;
@@ -21,12 +22,10 @@ public class SendData {
     //Simulacion de errores
     private static Random prob = new Random();
 
-    public SendData(DatagramSocket ds, InetAddress dstAddres, int dstPort, String PATH, boolean errors, boolean verbose) throws IOException {
+    public SendData(DatagramSocket ds, InetAddress dstAddres, int dstPort,File file, boolean errors, boolean verbose) throws IOException, ErrorReceivedException {
         DatagramPacket toSend;
-        try {
-            //Abrimos el archivo a enviar
-            File file = new File(PATH);
 
+        try {
             //Para leer el archivo
             FileInputStream in = new FileInputStream(file);
 
@@ -126,11 +125,6 @@ public class SendData {
 
             }
 
-        } catch (FileNotFoundException e) {
-            Error_Packet error_packet = new Error_Packet((short)1);
-            toSend = new DatagramPacket(error_packet.getBuffer(), error_packet.getBuffer().length, dstAddres, dstPort);
-            ds.send(toSend);
-            System.out.println(error_packet.getErrorMsg());
         } catch (IOException e) {
             e.printStackTrace();
         }
