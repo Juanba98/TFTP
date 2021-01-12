@@ -22,9 +22,6 @@ public class Client {
 //Codigos de operacion
 public static final short OPRRQ		= 01;
 
-//Longitud maxima del datagrama
-public static final int DATAGRAM_LENGTH = 516;
-
 //Direcctorio de los archivos
 public static final String DIR = ".\\lib\\client\\";
 
@@ -32,8 +29,7 @@ public static final String DIR = ".\\lib\\client\\";
 private static final int servPort = 1234;
 
 //Para la simulacion de errores
-private static final boolean errors=false;
-
+private static boolean errors=false;
 
 private static boolean quit;
 
@@ -53,6 +49,13 @@ private static boolean saveFile;
 
 
 public static void main(String[] args) throws ErrorReceivedException {
+
+	if(args.length == 1){
+		String s = args[0].toLowerCase();
+		if(s.equals("true")){
+			errors = true;
+		}
+	}
 
 
 	try {

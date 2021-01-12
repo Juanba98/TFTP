@@ -34,16 +34,16 @@ public class ServerThread extends Thread {
 	private String PATH;
 
 	//Verbose
-	private final boolean verbose = true;
+	private boolean verbose;
 
 	//SaveFile
-    private final boolean saveFile = true;
+    private boolean saveFile;
 
     //Errors
-    private final boolean errors = false;
+    private boolean errors;
 
 	
-	public ServerThread (DatagramPacket d) throws IOException {
+	public ServerThread (DatagramPacket d, boolean errors, boolean verbose, boolean saveFile) throws IOException {
 
 
 		//Obtenemos el paquete del cliente
@@ -58,7 +58,12 @@ public class ServerThread extends Thread {
 		this.PATH = DIR+request.getFileName();
 
 		//Creamos un nuevo socket para la hebra
-		ds =  new  DatagramSocket(); 
+		ds =  new  DatagramSocket();
+
+		//Parametros
+		this.errors = errors;
+		this.verbose = verbose;
+		this.saveFile = saveFile;
 	}
 		
 		
